@@ -1,0 +1,14 @@
+server:
+  port: 8709
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+
+
+upload:
+  basePath: /home/caw/public/DemoServer/sources/username/uploadImage/
+
+remote:
+  host: "127.0.0.1"
+  port: 8701
