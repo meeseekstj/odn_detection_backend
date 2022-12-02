@@ -9,6 +9,5 @@ spring:
 upload:
   basePath: /home/caw/public/DemoServer/sources/username/uploadImage/
 
-remote:
-  host: "127.0.0.1"
-  port: 8701
+
+
