@@ -82,17 +82,19 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
                 int poolHash = NettyClientPool.getPoolHash(channel);
                 Set<Channel> channels = coreChannel.get(poolHash);
                 channels = channels == null ? new HashSet<>(DataBusConstant.CORE_CONNECTIONS) : channels;
-                channels.add(channel);
-                if (channels.stream().filter(x -> x.isActive()).count() > DataBusConstant.CORE_CONNECTIONS) {
+                if (channels.stream().filter(Channel::isActive).count() >= DataBusConstant.CORE_CONNECTIONS) {
                     log.info("关闭 CORE_CONNECTIONS 范围之外的通道：{}", channel.id());
                     channels.remove(channel);
                     channel.close();
+                } else {
+                    channels.add(channel);
+                    coreChannel.put(poolHash, channels);
+                    String heartBeat = DataBusConstant.HEART_BEAT + DataBusConstant.DELIMITER;
+                    ByteBuf byteBuf = Unpooled.copiedBuffer(heartBeat.getBytes());
+                    channel.writeAndFlush(byteBuf);
                 }
-                coreChannel.put(poolHash, channels);
             }
-            String heartBeat = DataBusConstant.HEART_BEAT + DataBusConstant.DELIMITER;
-            ByteBuf byteBuf = Unpooled.copiedBuffer(heartBeat.getBytes());
-            channel.writeAndFlush(byteBuf);
+
         } else {
             super.userEventTriggered(ctx, evt);
         }
