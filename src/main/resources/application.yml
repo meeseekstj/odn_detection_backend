@@ -6,8 +6,5 @@ spring:
       max-file-size: 20MB
 
 
-upload:
-  basePath: /home/caw/public/DemoServer/sources/username/uploadImage/
-
 
 

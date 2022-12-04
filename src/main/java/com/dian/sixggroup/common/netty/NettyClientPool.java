@@ -114,8 +114,8 @@ public class NettyClientPool {
             FixedChannelPool pool = pools.get(address);
             Future<Channel> future = pool.acquire();
             channel = future.get();
-            AttributeKey<Long> randomID = AttributeKey.valueOf(DataBusConstant.RANDOM_KEY);
-            channel.attr(randomID).set(random);
+            AttributeKey<Long> requestID = AttributeKey.valueOf(DataBusConstant.CHANNEL_KEY);
+            channel.attr(requestID).set(random);
             //如果是因为服务端挂点，连接失败而获取不到channel，则随机数执行+1操作，从下一个池获取
         } catch (ExecutionException e) {
             log.error(e.getMessage());
@@ -145,20 +145,20 @@ public class NettyClientPool {
      * @方法名称 release
      */
     public static void release(Channel ch) {
-        long random = ch.attr(AttributeKey.<Long>valueOf(DataBusConstant.RANDOM_KEY)).get();
+        long random = ch.attr(AttributeKey.<Long>valueOf(DataBusConstant.CHANNEL_KEY)).get();
         ch.flush();
         Long poolIndex = random % pools.size();
         pools.get(addressList.get(poolIndex.intValue())).release(ch);
     }
 
     /**
-     * 获取线程池的hash值
+     * 获取channel池的hash值
      *
      * @param ch
      * @return
      */
     public static int getPoolHash(Channel ch) {
-        long random = ch.attr(AttributeKey.<Long>valueOf(DataBusConstant.RANDOM_KEY)).get();
+        long random = ch.attr(AttributeKey.<Long>valueOf(DataBusConstant.CHANNEL_KEY)).get();
         Long poolIndex = random % pools.size();
         return System.identityHashCode(pools.get(addressList.get(poolIndex.intValue())));
     }

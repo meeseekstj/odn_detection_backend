@@ -60,11 +60,7 @@ public class SocketClient {
     }
 
     public static String remoteCallByNettyChannel(String message) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        //同一个线程使用同一个全局唯一的随机数，保证从同一个池中获取和释放资源，同时使用改随机数作为Key获取返回值，时间戳+6位随机数
-        long random = Long.parseLong(sdf.format(new Date())) * 1000000 + Math.round(Math.random() * 1000000);
-
-        Channel channel = nettyClientPool.getChannel(random);
+        Channel channel = nettyClientPool.getChannel(message.hashCode());
         log.debug("在链接池池中取到的Channel： " + channel.id());
         UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator(false);
         ByteBuf buffer = allocator.buffer(20);
@@ -73,10 +69,9 @@ public class SocketClient {
         buffer.writeBytes(msg.getBytes());
         NettyClientHandler tcpClientHandler = channel.pipeline().get(NettyClientHandler.class);
         ChannelId id = channel.id();
-        log.info("SEND SEQNO[{}] MESSAGE AND CHANNEL id [{}]", random, id);
+        log.info("SEND  MESSAGE AND CHANNEL id [{}]", id);
+        String serverMsg = tcpClientHandler.sendMessage(buffer, channel, message);
 
-        String serverMsg = tcpClientHandler.sendMessage(buffer, channel);
-        NettyClientPool.release(channel);
-        return serverMsg;
+        return DataBusConstant.RES_PATH + serverMsg;
     }
 }

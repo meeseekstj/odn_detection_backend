@@ -1,5 +1,6 @@
 package com.dian.sixggroup.common.util;
 
+import com.dian.sixggroup.common.netty.DataBusConstant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,13 +16,11 @@ import java.util.UUID;
 @Component
 public class Upload {
 
-    @Value("${upload.basePath}")
-    private String basePath;
-
     public String upload(MultipartFile img) {
         SimpleDateFormat f1 = new SimpleDateFormat("yyyyMMdd");
         Date now = new Date();
         String dirName = f1.format(now);
+        String basePath = DataBusConstant.BASE_PATH;
         File dir = new File(basePath + dirName);
         // 检测是否存在目录
         if (!dir.exists()) dir.mkdirs();

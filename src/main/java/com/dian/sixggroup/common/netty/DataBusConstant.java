@@ -1,6 +1,8 @@
 package com.dian.sixggroup.common.netty;
 
 
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * @Author: tanjun
  * @CreateTime: 2022-12-02 14:35
@@ -26,11 +28,14 @@ public class DataBusConstant {
     /**
      * 同一个线程使用同一个全局唯一的随机数，保证从同一个池中获取和释放资源，同时使用改随机数作为Key获取返回值
      */
-    public static final String RANDOM_KEY = "randomID";
+    public static final String CHANNEL_KEY = "requestID";
 
     /**
      * 服务端丢失心跳次数，达到该次数，则关闭通道，默认3次
      */
     public static final int LOOS_HEART_BEAT_COUNT = 3;
+
+    public static final String RES_PATH = "/home/caw/public/DemoServer/sources/username/resImage/";
+    public static final String BASE_PATH = "/home/caw/public/DemoServer/sources/username/uploadImage/";
 
 }
