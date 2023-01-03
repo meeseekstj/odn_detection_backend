@@ -104,8 +104,7 @@ public class NettyClientPool {
      * @return io.netty.channel.Channel
      * @方法名称 getChannel
      */
-    public Channel getChannel(long random) {
-        int retry = 0;
+    public Channel getChannel(long random, int nthRetry) {
         Channel channel = null;
         try {
             //按时间戳取余
@@ -121,9 +120,9 @@ public class NettyClientPool {
             log.error(e.getMessage());
             //每个池，尝试获取取2次
             int count = 2;
-            if (retry < addressList.size() * count) {
-                retry++;
-                return getChannel(++random);
+            if (nthRetry < addressList.size() * count) {
+                nthRetry++;
+                return getChannel(++random, nthRetry);
             } else {
                 log.error("没有可以获取到channel连接的server，server list [{}]", addressList);
                 throw new RuntimeException("没有可以获取到channel连接的server");

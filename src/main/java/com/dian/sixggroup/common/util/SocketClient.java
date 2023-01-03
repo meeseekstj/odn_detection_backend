@@ -60,7 +60,7 @@ public class SocketClient {
     }
 
     public static String remoteCallByNettyChannel(String message) {
-        Channel channel = nettyClientPool.getChannel(message.hashCode());
+        Channel channel = nettyClientPool.getChannel(message.hashCode(), 0);
         log.debug("在链接池池中取到的Channel： " + channel.id());
         UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator(false);
         ByteBuf buffer = allocator.buffer(20);
