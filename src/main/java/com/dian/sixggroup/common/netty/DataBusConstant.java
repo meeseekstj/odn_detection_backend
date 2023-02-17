@@ -35,7 +35,7 @@ public class DataBusConstant {
      */
     public static final int LOOS_HEART_BEAT_COUNT = 3;
 
-    public static final String RES_PATH = "/home/caw/public/DemoServer/sources/username/resImage/";
-    public static final String BASE_PATH = "/home/caw/public/DemoServer/sources/username/uploadImage/";
+    public static final String RES_PATH = "/mnt/data01/caw/demo/DIAN/DemoServer/sources/username/resImage/";
+    public static final String BASE_PATH = "/mnt/data01/caw/demo/DIAN/DemoServer/sources/username/uploadImage/";
 
 }

@@ -43,6 +43,7 @@ public class SocketClient {
             // 发送内容
             out.println(imgPath);
             // 告诉服务进程，内容发送完毕，可以开始处理
+            out.flush();
             // 获取服务进程的输入流
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             return br.readLine();

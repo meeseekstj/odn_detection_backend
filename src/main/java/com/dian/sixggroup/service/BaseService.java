@@ -16,14 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseService {
     @Autowired
     private Upload upload;
-    public String resImage(MultipartFile file){
+
+    public String resImage(MultipartFile file) {
         long t1 = System.currentTimeMillis();
         String imgPath = upload.upload(file);
         long t2 = System.currentTimeMillis();
-        log.info("upload image cost [{}]ms",t2-t1);
-        String s = SocketClient.remoteCallByNettyChannel(imgPath);
+        log.info("upload image cost [{}]ms", t2 - t1);
+        String s = SocketClient.remoteCall(imgPath);
         long t3 = System.currentTimeMillis();
-        log.info("remote call cost [{}]ms",t3-t2);
+        log.info("remote call cost [{}]ms, return [{}]", t3 - t2, s);
         return s;
     }
 

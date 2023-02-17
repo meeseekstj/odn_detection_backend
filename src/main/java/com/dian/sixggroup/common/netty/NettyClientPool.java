@@ -60,7 +60,7 @@ public class NettyClientPool {
      *
      * @return
      */
-    @Bean(initMethod = "build")
+//    @Bean(initMethod = "build")
     public static NettyClientPool getInstance() {
         if (nettyClientPool == null) {
             synchronized (NettyClientPool.class) {
