@@ -32,18 +32,20 @@ public class WebSocketServer {
      */
     private static final ConcurrentHashMap<String, Session> sessionMap = new ConcurrentHashMap<>();
 
+    private String userId = "";
+
     /**
      * 连接建立成功调用的方法
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("id") String id) {
-
+        userId = id;
         if (sessionMap.containsKey(id) && sessionMap.get(id).isOpen()) {
             return;
         } else {
             sessionMap.put(id, session);
         }
-        log.info("客户端连接:" + session.getBasicRemote().toString() + " ,id:" + id);
+        log.info("客户端连接:" + " ,id:" + id);
 
     }
 
@@ -53,7 +55,7 @@ public class WebSocketServer {
     @OnClose
     public void onClose(Session session, @PathParam("id") String id) {
         sessionMap.remove(id);
-        log.info("客户端断开连接:" + session.getBasicRemote().toString() + " ,id:" + id);
+        log.info("客户端断开连接:" + " ,id:" + id);
     }
 
     /**
@@ -61,7 +63,7 @@ public class WebSocketServer {
      *
      * @param message 客户端发送过来的消息
      */
-    @OnMessage(maxMessageSize=5242880)
+    @OnMessage(maxMessageSize = 5242880)
     public void onMessage(byte[] message, Session session) {
         long t1 = System.currentTimeMillis();
         String imgPath = Upload.uploadFromBytes(message);
@@ -73,19 +75,19 @@ public class WebSocketServer {
         session.getAsyncRemote().sendBinary(readFileToByteBuffer(s));
 
     }
+
     @OnMessage
     public void onMessage(String message, Session session) {
-        if("ping".equals(message)){
+        if ("ping".equals(message)) {
 
-        }else {
+        } else {
 
         }
     }
 
     public static ByteBuffer readFileToByteBuffer(String filepath) {
-        try {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             InputStream is = Files.newInputStream(Paths.get(filepath));
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             int count = 0;
             byte[] b = new byte[8 * 1024];
@@ -109,7 +111,7 @@ public class WebSocketServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        log.info("客户端错误:" + session.getBasicRemote().toString());
+        log.info("客户端错误:" + userId);
         error.printStackTrace();
     }
 
@@ -123,7 +125,7 @@ public class WebSocketServer {
     /**
      * 发送自定义消息
      */
-    public static void sendInfo(String message, @PathParam("id") String id) {
+    public static void sendInfo(String message, String id) {
         if (sessionMap.containsKey(id)) {
             try {
                 sessionMap.get(id).getBasicRemote().sendText(message);
