@@ -63,8 +63,6 @@ public class WebSocketServer {
      */
     @OnMessage(maxMessageSize=5242880)
     public void onMessage(byte[] message, Session session) {
-        System.out.println("bytes ws");
-
         long t1 = System.currentTimeMillis();
         String imgPath = Upload.uploadFromBytes(message);
         long t2 = System.currentTimeMillis();
@@ -77,7 +75,11 @@ public class WebSocketServer {
     }
     @OnMessage
     public void onMessage(String message, Session session) {
-        System.out.println("string ws");
+        if("ping".equals(message)){
+
+        }else {
+
+        }
     }
 
     public static ByteBuffer readFileToByteBuffer(String filepath) {
