@@ -1,0 +1,18 @@
+[2022-11-21 21:13:18.300142] [INFO] [server.py] [server] [19] server started, listen on %LAPTOP-7KG7TS6A:%8707
+[2022-11-21 21:14:34.078906] [INFO] [server.py] [server] [19] server started, listen on %127.0.0.1:%8707
+[2022-11-21 21:15:43.073168] [INFO] [server.py] [server] [19] server started, listen on %127.0.0.1:%8707
+[2022-11-21 21:16:42.723287] [INFO] [server.py] [server] [19] server started, listen on %127.0.0.1:%8701
+[2022-11-21 21:16:51.358004] [INFO] [server.py] [server] [19] server started, listen on %127.0.0.1:%1234
+[2022-11-21 21:20:23.794991] [INFO] [server.py] [server] [20] server started, listen on %127.0.0.1:%8701
+[2022-11-21 21:21:36.212591] [INFO] [server.py] [server] [20] server started, listen on %127.0.0.1:%8701
+[2022-11-21 22:34:01.772740] [INFO] [server.py] [server] [23] server started, listen on 127.0.0.1:8701
+[2022-11-21 22:39:06.868202] [INFO] [server.py] [server] [26] tcp established from %('127.0.0.1', 4826)
+[2022-11-21 22:39:06.870201] [INFO] [server.py] [run] [44] java端发送：path/from/java/a.jpg
+
+[2022-11-21 22:39:06.870201] [INFO] [server.py] [run] [51] python端回复：test
+
+[2022-11-21 22:46:53.172658] [INFO] [server.py] [server] [26] tcp established from %('127.0.0.1', 6585)
+[2022-11-21 22:46:53.173654] [INFO] [server.py] [run] [44] java端发送：path/from/java/a.jpg
+
+[2022-11-21 22:46:53.174654] [INFO] [server.py] [run] [51] python端回复：test
+
