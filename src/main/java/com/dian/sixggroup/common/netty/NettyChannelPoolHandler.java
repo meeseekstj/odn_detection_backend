@@ -23,19 +23,19 @@ public class NettyChannelPoolHandler implements ChannelPoolHandler {
     @Override
     public void channelReleased(Channel ch){
         ch.writeAndFlush(Unpooled.EMPTY_BUFFER);
-        log.info("|-->回收Channel. Channel ID: " + ch.id());
+        log.info("|-->回收Channel. Channel ID:{} ", ch.id());
     }
 
     @Override
     public void channelAcquired(Channel ch){
-        log.info("|-->获取Channel. Channel ID: " + ch.id());
+        log.info("3 |-->获取Channel. Channel ID: " + ch.id());
     }
 
     @Override
     public void channelCreated(Channel ch){
 
         log.info("|-->创建Channel. Channel ID: " + ch.id()
-                +"\r\n|-->创建Channel. Channel REAL HASH: " + System.identityHashCode(ch));
+                +". Channel REAL HASH: " + System.identityHashCode(ch));
         SocketChannel channel = (SocketChannel) ch;
         channel.config().setKeepAlive(true);
         channel.config().setTcpNoDelay(true);
@@ -43,6 +43,8 @@ public class NettyChannelPoolHandler implements ChannelPoolHandler {
                 //开启Netty自带的心跳处理器，每5秒发送一次心跳
                 .addLast(new IdleStateHandler(0, 0, 5, TimeUnit.SECONDS))
                 .addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE,byteBuf))
-                .addLast(new NettyClientHandler());
+                .addLast(new ChannelInboundHandler());
     }
+
+
 }

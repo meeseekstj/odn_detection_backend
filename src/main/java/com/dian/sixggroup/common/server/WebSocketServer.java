@@ -45,7 +45,7 @@ public class WebSocketServer {
         } else {
             sessionMap.put(id, session);
         }
-        log.info("客户端连接:" + " ,id:" + id);
+        log.info("客户端连接,id:{}", id);
 
     }
 
@@ -55,7 +55,7 @@ public class WebSocketServer {
     @OnClose
     public void onClose(Session session, @PathParam("id") String id) {
         sessionMap.remove(id);
-        log.info("客户端断开连接:" + " ,id:" + id);
+        log.info("客户端断开连接,id:{}", id);
     }
 
     /**
@@ -69,19 +69,18 @@ public class WebSocketServer {
         String imgPath = Upload.uploadFromBytes(message);
         long t2 = System.currentTimeMillis();
         log.info("upload image cost [{}]ms", t2 - t1);
-        String s = SocketClient.remoteCall(imgPath);
+        String s = SocketClient.remoteCallByNettyChannel(imgPath);
         long t3 = System.currentTimeMillis();
         log.info("remote call cost [{}]ms, return [{}]", t3 - t2, s);
-        session.getAsyncRemote().sendBinary(readFileToByteBuffer(s));
+        if (s != null)
+            session.getAsyncRemote().sendBinary(readFileToByteBuffer(s));
 
     }
 
     @OnMessage
     public void onMessage(String message, Session session) {
         if ("ping".equals(message)) {
-
-        } else {
-
+            return;
         }
     }
 
@@ -99,7 +98,7 @@ public class WebSocketServer {
 
             return ByteBuffer.wrap(out.toByteArray());
         } catch (Exception e) {
-
+            e.printStackTrace();
             return null;
         }
     }
@@ -111,7 +110,7 @@ public class WebSocketServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        log.info("客户端错误:" + userId);
+        log.info("客户端错误: id {}", userId);
         error.printStackTrace();
     }
 
@@ -133,7 +132,7 @@ public class WebSocketServer {
                 log.error("websocket send failed");
             }
         } else {
-            log.error("客户端不存在！" + " session id: " + id + " ,message: " + message);
+            log.error("客户端不存在！ session id: {} ,message: {}", id, message);
         }
     }
 }

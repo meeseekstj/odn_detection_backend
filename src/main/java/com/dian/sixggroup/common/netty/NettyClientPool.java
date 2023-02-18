@@ -11,6 +11,7 @@ import io.netty.channel.pool.FixedChannelPool;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -60,7 +58,7 @@ public class NettyClientPool {
      *
      * @return
      */
-//    @Bean(initMethod = "build")
+    @Bean(initMethod = "build")
     public static NettyClientPool getInstance() {
         if (nettyClientPool == null) {
             synchronized (NettyClientPool.class) {
@@ -86,6 +84,18 @@ public class NettyClientPool {
 
         for (InetSocketAddress address : addressList) {
             pools.put(address, poolMap.get(address));
+        }
+        preheat();
+    }
+    public void preheat(){
+        Random random = new Random();
+        ArrayList<Channel> channels = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Channel channel = getChannel(random.nextLong(), 0);
+            channels.add(channel);
+        }
+        for (Channel ch : channels){
+            release(ch);
         }
     }
 
@@ -115,6 +125,7 @@ public class NettyClientPool {
             channel = future.get();
             AttributeKey<Long> requestID = AttributeKey.valueOf(DataBusConstant.CHANNEL_KEY);
             channel.attr(requestID).set(random);
+
             //如果是因为服务端挂点，连接失败而获取不到channel，则随机数执行+1操作，从下一个池获取
         } catch (ExecutionException e) {
             log.error(e.getMessage());
@@ -143,7 +154,7 @@ public class NettyClientPool {
      * @return void
      * @方法名称 release
      */
-    public static void release(Channel ch) {
+    public void release(Channel ch) {
         long random = ch.attr(AttributeKey.<Long>valueOf(DataBusConstant.CHANNEL_KEY)).get();
         ch.flush();
         Long poolIndex = random % pools.size();

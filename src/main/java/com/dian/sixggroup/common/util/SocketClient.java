@@ -1,21 +1,17 @@
 package com.dian.sixggroup.common.util;
 
 import com.dian.sixggroup.common.netty.DataBusConstant;
-import com.dian.sixggroup.common.netty.NettyClientHandler;
+import com.dian.sixggroup.common.netty.ChannelInboundHandler;
 import com.dian.sixggroup.common.netty.NettyClientPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @Author: tanjun
@@ -46,7 +42,7 @@ public class SocketClient {
             out.flush();
             // 获取服务进程的输入流
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-            return br.readLine();
+            return DataBusConstant.RES_PATH + br.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -62,17 +58,18 @@ public class SocketClient {
 
     public static String remoteCallByNettyChannel(String message) {
         Channel channel = nettyClientPool.getChannel(message.hashCode(), 0);
-        log.debug("在链接池池中取到的Channel： " + channel.id());
+
         UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator(false);
         ByteBuf buffer = allocator.buffer(20);
         //使用固定分隔符的半包解码器
         String msg = message + DataBusConstant.DELIMITER;
         buffer.writeBytes(msg.getBytes());
-        NettyClientHandler tcpClientHandler = channel.pipeline().get(NettyClientHandler.class);
+        ChannelInboundHandler tcpClientHandler = channel.pipeline().get(ChannelInboundHandler.class);
         ChannelId id = channel.id();
         log.info("SEND  MESSAGE AND CHANNEL id [{}]", id);
         String serverMsg = tcpClientHandler.sendMessage(buffer, channel, message);
-
+        if (serverMsg == null) return null;
+        nettyClientPool.release(channel);
         return DataBusConstant.RES_PATH + serverMsg;
     }
 }
