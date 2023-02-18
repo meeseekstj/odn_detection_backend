@@ -6,12 +6,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.pool.AbstractChannelPoolMap;
+import io.netty.channel.pool.ChannelHealthChecker;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.FixedChannelPool;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -77,8 +79,12 @@ public class NettyClientPool {
         poolMap = new AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool>() {
             @Override
             protected FixedChannelPool newPool(InetSocketAddress key) {
-                return new FixedChannelPool(strap.remoteAddress(key), new NettyChannelPoolHandler(), DataBusConstant.MAX_CONNECTIONS);
+                return new FixedChannelPool(strap.remoteAddress(key), new NettyChannelPoolHandler(),
+                        ChannelHealthChecker.ACTIVE, null, -1L,
+                        DataBusConstant.MAX_CONNECTIONS, Integer.MAX_VALUE,
+                        false, DataBusConstant.lastRecentUsed);
             }
+
         };
         getInetAddresses(DataBusConstant.ADDRESSES);
 

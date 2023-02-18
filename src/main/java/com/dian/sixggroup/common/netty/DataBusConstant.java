@@ -29,6 +29,10 @@ public class DataBusConstant {
      * 同一个线程使用同一个全局唯一的随机数，保证从同一个池中获取和释放资源，同时使用改随机数作为Key获取返回值
      */
     public static final String CHANNEL_KEY = "requestID";
+    /**
+     * channelPool的获取channel策略，为false时相当于FIFO(更为公平，但似乎耗时更多)，为true时先进后出
+     */
+    public static final boolean lastRecentUsed = true;
 
 
     public static final String RES_PATH = "/mnt/data01/caw/demo/DIAN/DemoServer/sources/username/resImage/";

@@ -41,7 +41,7 @@ public class ChannelInboundHandler extends ChannelInboundHandlerAdapter {
         String res = null;
         try {
             //设置获取超时时间或者使用take()--获取不到返回结果一直阻塞
-            res = RESULT_MAP.get(key).poll(10, TimeUnit.SECONDS);
+            res = RESULT_MAP.get(key).poll(5, TimeUnit.SECONDS);
             RESULT_MAP.remove(key);
         } catch (Exception e) {
             e.printStackTrace();

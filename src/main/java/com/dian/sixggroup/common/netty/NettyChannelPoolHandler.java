@@ -28,7 +28,7 @@ public class NettyChannelPoolHandler implements ChannelPoolHandler {
 
     @Override
     public void channelAcquired(Channel ch){
-        log.info("3 |-->获取Channel. Channel ID: " + ch.id());
+        log.info("|-->获取Channel. Channel ID: " + ch.id());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class NettyChannelPoolHandler implements ChannelPoolHandler {
         channel.config().setTcpNoDelay(true);
         channel.pipeline()
                 //开启Netty自带的心跳处理器，每5秒发送一次心跳
-                .addLast(new IdleStateHandler(0, 0, 5, TimeUnit.SECONDS))
+                .addLast(new IdleStateHandler(0, 0, 60, TimeUnit.SECONDS))
                 .addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE,byteBuf))
                 .addLast(new ChannelInboundHandler());
     }
