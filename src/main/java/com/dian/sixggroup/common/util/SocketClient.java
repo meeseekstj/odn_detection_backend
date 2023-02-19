@@ -68,8 +68,8 @@ public class SocketClient {
         ChannelId id = channel.id();
         log.info("SEND  MESSAGE AND CHANNEL id [{}]", id);
         String serverMsg = tcpClientHandler.sendMessage(buffer, channel, message);
-        if (serverMsg == null) return null;
         nettyClientPool.release(channel);
+        if (serverMsg == null) return null;
         return DataBusConstant.RES_PATH + serverMsg;
     }
 }

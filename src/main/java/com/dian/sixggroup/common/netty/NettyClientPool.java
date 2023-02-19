@@ -93,14 +93,15 @@ public class NettyClientPool {
         }
         preheat();
     }
-    public void preheat(){
+
+    public void preheat() {
         Random random = new Random();
         ArrayList<Channel> channels = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Channel channel = getChannel(random.nextLong(), 0);
             channels.add(channel);
         }
-        for (Channel ch : channels){
+        for (Channel ch : channels) {
             release(ch);
         }
     }

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dian</groupId>
-    <artifactId>sixggroup</artifactId>
+    <artifactId>imgDetection</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>sixggroup</name>
-    <description>sixggroup</description>
+    <name>imgDetection</name>
+    <description>imgDetection</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>

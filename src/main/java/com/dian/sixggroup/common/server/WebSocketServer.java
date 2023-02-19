@@ -17,7 +17,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 
 @ServerEndpoint("/api/ws/{id}")
@@ -25,6 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServer {
 
     static Logger log = LoggerFactory.getLogger(WebSocketServer.class);
+    static ExecutorService executorService = new ThreadPoolExecutor(3, 20,
+            60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>());
 
 
     /**
@@ -67,13 +70,17 @@ public class WebSocketServer {
     public void onMessage(byte[] message, Session session) {
         long t1 = System.currentTimeMillis();
         String imgPath = Upload.uploadFromBytes(message);
-        long t2 = System.currentTimeMillis();
-        log.info("upload image cost [{}]ms", t2 - t1);
-        String s = SocketClient.remoteCallByNettyChannel(imgPath);
-        long t3 = System.currentTimeMillis();
-        log.info("remote call cost [{}]ms, return [{}]", t3 - t2, s);
-        if (s != null)
-            session.getAsyncRemote().sendBinary(readFileToByteBuffer(s));
+
+            long t2 = System.currentTimeMillis();
+            log.info("upload image cost [{}]ms", t2 - t1);
+            String s = SocketClient.remoteCallByNettyChannel(imgPath);
+            long t3 = System.currentTimeMillis();
+            log.info("remote call cost [{}]ms, return [{}]", t3 - t2, s);
+            if (s != null) {
+                executorService.execute(() -> {
+                    session.getAsyncRemote().sendBinary(readFileToByteBuffer(s));
+                });
+            }
 
     }
 
