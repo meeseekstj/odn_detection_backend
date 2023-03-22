@@ -1,7 +1,7 @@
 package com.dian.sixggroup.service;
 
-import com.dian.sixggroup.common.util.SocketClient;
-import com.dian.sixggroup.common.util.Upload;
+import com.dian.sixggroup.util.SocketClient;
+import com.dian.sixggroup.util.Upload;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
