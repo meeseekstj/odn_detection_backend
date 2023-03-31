@@ -40,7 +40,7 @@ public class NettyChannelPoolHandler implements ChannelPoolHandler {
         channel.config().setKeepAlive(true);
         channel.config().setTcpNoDelay(true);
         channel.pipeline()
-                //开启Netty自带的心跳处理器，每5秒发送一次心跳
+                //开启Netty自带的心跳处理器
                 .addLast(new IdleStateHandler(0, 0, 60, TimeUnit.SECONDS))
                 .addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE,byteBuf))
                 .addLast(new ChannelInboundHandler());

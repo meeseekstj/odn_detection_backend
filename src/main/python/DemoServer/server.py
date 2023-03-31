@@ -63,40 +63,44 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=3):
 
 
 def server():
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.bind((host, port))
-    serversocket.listen()
-    # serversocket.settimeout(-1)
-    logger.info(f"server started, listen on {host}:{port}")
-    while True:
-        clientsocket, addr = serversocket.accept()
-        logger.info(f"tcp established from {addr}")
-        try:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serversocket:
+        serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # 设置SO_REUSEADDR选项，避免启动失败
+        serversocket.bind((host, port))
+        serversocket.listen()
+        print(f"server started, listen on {host}:{port}")
+        while True:
+            clientsocket, addr = serversocket.accept()
+            print(f"tcp established from {addr}")
             thread = ServerThread(clientsocket)
             thread.start()
-        except Exception as identifier:
-            logger.error(identifier)
-    # serversocket.close()
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, clientsocket: socket.socket, encoding='utf-8'):
-        threading.Thread.__init__(self)
+    def __init__(self, clientsocket: socket.socket, *, encoding='utf-8'):
+        super().__init__()
         self._socket = clientsocket
+        self._textio = None
         self._encoding = encoding
 
     def run(self):
-        textio = self._socket.makefile(encoding=self._encoding)
-        msg = textio.readline().rstrip()
-        while msg != '':
-            if msg == PING:
-                continue
-            res: str = handleMsg(msg)
-            if res != '':
-                res += "\n"
-                self._socket.send(res.encode())
-            msg = textio.readline().rstrip()
-        textio.close()
+        try:
+            self._textio = self._socket.makefile(mode='rw', encoding=self._encoding)
+            while True:
+                msg = self._textio.readline().strip()
+                if not msg:
+                    break  # 连接断开，退出循环
+                if msg == PING:
+                    continue  # 心跳包，不作处理
+                res = handleMsg(msg)  # 处理消息
+                if res:
+                    self._textio.write(res + '\n')  # 返回响应
+                    self._textio.flush()  # 立即刷新缓存，确保数据及时发送
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            pass  # 客户端异常断开，不作处理
+        finally:
+            if self._textio:
+                self._textio.close()  # 关闭连接文件
+            self._socket.close()  # 关闭socket连接
 
 
 def handleMsg(msg):

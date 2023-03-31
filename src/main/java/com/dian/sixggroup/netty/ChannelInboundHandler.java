@@ -116,7 +116,7 @@ public class ChannelInboundHandler extends ChannelInboundHandlerAdapter {
                     channels.remove(channel);
                     channel.close();
                 } else {
-                    log.info("[客户端心跳监测发送] 通道编号：{}", ctx.channel().id());
+                    //log.info("[客户端心跳监测发送] 通道编号：{}", ctx.channel().id());
                     coreChannel.put(poolHash, channels);
                    /* String heartBeat = DataBusConstant.HEART_BEAT + DataBusConstant.DELIMITER;
                     ByteBuf byteBuf = Unpooled.copiedBuffer(heartBeat.getBytes());

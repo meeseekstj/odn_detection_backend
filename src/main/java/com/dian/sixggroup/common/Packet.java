@@ -1,14 +1,13 @@
 package com.dian.sixggroup.common;
 
+import java.io.Serializable;
+
 /**
  * @Author: tanjun
  * @CreateTime: 2023-03-07 15:30
  */
-public class Packet {
-    public static String KEY_CODE = "code";
-
-    public static String KEY_POINT = "points";
-    public static String KEY_IMAGE = "imageUri";
+public class Packet implements Serializable {
+    private static final long serialVersionUID = 114L;
     private int code;
     private String points;
     private String imageUri;
