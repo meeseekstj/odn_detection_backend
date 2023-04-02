@@ -91,7 +91,7 @@ class ServerThread(threading.Thread):
                     break  # 连接断开，退出循环
                 if msg == PING:
                     continue  # 心跳包，不作处理
-                res = handleMsg(msg)  # 处理消息
+                res = handleMsg(msg[0:1], msg[1:])  # 处理消息
                 if res:
                     self._textio.write(res + '\n')  # 返回响应
                     self._textio.flush()  # 立即刷新缓存，确保数据及时发送
@@ -103,8 +103,8 @@ class ServerThread(threading.Thread):
             self._socket.close()  # 关闭socket连接
 
 
-def handleMsg(msg):
-
+def handleMsg(flag, msg):
+    flag = int(flag)
     upload_image_path = os.path.join(UploadImageStoreRootPath, msg)
     logger.info(f"原始图片路径：{upload_image_path}")
     td = time.strftime("%Y%m%d", time.localtime())
@@ -121,9 +121,9 @@ def handleMsg(msg):
     code = 0
     points = []
     if l == 16 or l == 11:
-        if l == 16:
+        if flag == 0 or (flag == 2 and l == 16):
             Pose = ImageProcess(upload_image_path, ResultImageStorePath)
-        else:
+        elif flag == 0 or (flag == 1 and l == 11):
             Pose = ImageDemoClassI(upload_image_path, ResultImageStorePath)
         logger.info(f"检测点个数{len(list(bboxes))} 姿态检测个数{len(list(Pose))}")
         if l == len(list(Pose)):
@@ -146,58 +146,5 @@ def handleMsg(msg):
     return msg
 
 
-
-def handlePackage(target_socket, msg, epoll, textio, buffers):
-    if PING != msg and '' != msg:
-        res = handleMsg(msg)
-        if res != '':
-            buffers[target_socket] = res + "\n"
-            epoll.modify(target_socket, select.EPOLLOUT)
-    textio.close()
-
-
-def epoll_server():
-    procPool = ThreadPoolExecutor(15)
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host, port))
-    s.listen()
-    s.setblocking(False)
-    epoll = select.epoll()
-    epoll.register(s.fileno(), select.EPOLLIN | select.EPOLLOUT | select.EPOLLHUP)
-    connections = {}
-    addresses = {}
-    buffers = {}
-    logger.info(f"epoll_server started, listen on {host}:{port}")
-    while True:
-        epoll_list = epoll.poll()
-        for fd, events in epoll_list:
-            if fd == s.fileno():
-                new_socket, new_addr = s.accept()
-                connections[new_socket.fileno()] = new_socket
-                addresses[new_socket.fileno()] = new_addr
-                epoll.register(new_socket.fileno(), select.EPOLLIN | select.EPOLLET)
-                logger.info(f"tcp established from {new_addr}, there are {len(connections)} connections now")
-            elif events & select.EPOLLIN:
-                textio = connections[fd].makefile(encoding='utf-8')
-                msg = textio.readline().rstrip()
-                if msg != '':
-                    procPool.submit(handlePackage, connections[fd], msg, epoll, textio, buffers)
-            elif events & select.EPOLLOUT:
-                if buffers[fd] != '':
-                    connections[fd].send(buffers[fd].encode())
-                    buffers[fd] = ''
-                epoll.modify(fd, select.EPOLLIN)
-            elif events & select.EPOLLHUP:
-                epoll.unregister(fd)
-                connections[fd].close()
-                logger.info(f"{addresses[fd]}---offline---")
-                del connections[fd]
-                del addresses[fd]
-
-
 if __name__ == '__main__':
-    if len(sys.argv) == 2 and 'epoll' == sys.argv[1]:
-        epoll_server()
-    else:
-        server()
+    server()

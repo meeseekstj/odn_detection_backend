@@ -17,6 +17,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 
@@ -61,16 +62,20 @@ public class WebSocketServer {
     /**
      * 收到客户端消息后调用的方法
      *
-     * @param message 客户端发送过来的消息
+     * @param messageBytes 客户端发送过来的消息
      */
     @OnMessage(maxMessageSize = 5242880)
-    public void onMessage(byte[] message, Session session) {
+    public void onMessage(byte[] messageBytes, Session session) {
         long t1 = System.currentTimeMillis();
-        String imgPath = Upload.uploadFromBytes(message);
+        // 读取标志位
+        int flag = (int) messageBytes[0];
+        // 截取图像字节数组
+        byte[] imageBytes = Arrays.copyOfRange(messageBytes, 1, messageBytes.length);
+        String imgPath = Upload.uploadFromBytes(imageBytes);
 
         long t2 = System.currentTimeMillis();
         log.info("upload image cost [{}]ms", t2 - t1);
-        Packet packet = SocketClient.remoteCallByNettyChannel(imgPath);
+        Packet packet = SocketClient.remoteCallByNettyChannel(imgPath, flag);
         long t3 = System.currentTimeMillis();
         if (packet != null) {
             log.info("remote call cost [{}]ms, return [{}]", t3 - t2, packet);

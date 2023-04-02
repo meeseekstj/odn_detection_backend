@@ -59,14 +59,15 @@ public class SocketClient {
         return null;
     }
 
-    public static Packet remoteCallByNettyChannel(String message) {
+    public static Packet remoteCallByNettyChannel(String message, int flag) {
         Channel channel = nettyClientPool.getChannel(message.hashCode(), 0);
 
         UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator(false);
         ByteBuf buffer = allocator.buffer(20);
         //使用固定分隔符的半包解码器
-        String msg = message + DataBusConstant.DELIMITER;
+        String msg = flag + message + DataBusConstant.DELIMITER;
         buffer.writeBytes(msg.getBytes());
+        System.out.println(buffer.capacity());
         ChannelInboundHandler tcpClientHandler = channel.pipeline().get(ChannelInboundHandler.class);
         ChannelId id = channel.id();
         log.info("SEND  MESSAGE AND CHANNEL id [{}]", id);
