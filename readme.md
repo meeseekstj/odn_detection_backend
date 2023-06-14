@@ -76,3 +76,17 @@ python server.py
 ```sh
 java -jar jar包名称
 ```
+
+采集的原始图片和识别后的结果图片分别保存在/mnt/data01/home/caw/public/DemoServer/sources/username目录下的uploadImage和resImage里，
+可在src/main/java/com/dian/sixggroup/netty/DataBusConstant.java进行修改。
+
+结果图片由服务器NGINX进行代理，配置文件为/etc/nginx/conf.d/java.conf，配置如下：
+```
+server {
+    listen 80;
+    server_name 192.168.0.75;
+    location /static {
+        alias /mnt/data01/home/caw/public/DemoServer/sources/username/resImage/;
+    }
+}
+```
