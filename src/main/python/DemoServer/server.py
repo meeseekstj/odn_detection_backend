@@ -103,7 +103,12 @@ class ServerThread(threading.Thread):
             self._socket.close()  # 关闭socket连接
 
 
+cnt = 0
+total_time = 0
+
+
 def handleMsg(flag, msg):
+    t1 = time.time() * 1000
     flag = int(flag)
     upload_image_path = os.path.join(UploadImageStoreRootPath, msg)
     logger.info(f"原始图片路径：{upload_image_path}")
@@ -120,11 +125,13 @@ def handleMsg(flag, msg):
     l = len(list(bboxes))
     code = 0
     points = []
-    if l == 16 or l == 11:
-        if flag == 0 or (flag == 2 and l == 16):
+    while l == 16 or l == 11:
+        if l == 16 and (flag == 0 or flag == 2):
             Pose = ImageProcess(upload_image_path, ResultImageStorePath)
-        elif flag == 0 or (flag == 1 and l == 11):
+        elif l == 11 and (flag == 0 or flag == 1):
             Pose = ImageDemoClassI(upload_image_path, ResultImageStorePath)
+        else:
+            break
         logger.info(f"检测点个数{len(list(bboxes))} 姿态检测个数{len(list(Pose))}")
         if l == len(list(Pose)):
             _, order = matching(bboxes, Pose[:, :2])
@@ -134,6 +141,7 @@ def handleMsg(flag, msg):
             for i in range(l):
                 plot_one_box(bboxes[i], img, label=str(order[i] + 1))
             cv2.imwrite(ResultImageStorePath, img)
+        break
     # code = 1
     # labels = ["caps" for i in range(16)]
     data = {
@@ -143,6 +151,12 @@ def handleMsg(flag, msg):
     }
     msg = json.dumps(data)
     logger.info(f"算法模型结果：{msg} ")
+    t2 = time.time() * 1000
+    global total_time
+    total_time += t2 - t1
+    global cnt
+    cnt += 1
+    logger.info(f"NO.[{cnt}]: cost [{t2 - t1}]ms, total_cost [{total_time}]ms, avg [{total_time / cnt}]ms")
     return msg
 
 

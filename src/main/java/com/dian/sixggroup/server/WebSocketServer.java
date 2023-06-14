@@ -73,15 +73,15 @@ public class WebSocketServer {
         byte[] imageBytes = Arrays.copyOfRange(messageBytes, 1, messageBytes.length);
         String imgPath = Upload.uploadFromBytes(imageBytes);
 
-        long t2 = System.currentTimeMillis();
-        log.info("upload image cost [{}]ms", t2 - t1);
+//        long t2 = System.currentTimeMillis();
+//        log.info("upload image cost [{}]ms", t2 - t1);
         Packet packet = SocketClient.remoteCallByNettyChannel(imgPath, flag);
         long t3 = System.currentTimeMillis();
         if (packet != null) {
-            log.info("remote call cost [{}]ms, return [{}]", t3 - t2, packet);
+            log.info("remote call cost [{}]ms, return [{}]", t3 - t1, packet);
             session.getAsyncRemote().sendObject(packet);
         } else {
-            log.info("remote call cost [{}]ms, return null", t3 - t2);
+            log.info("remote call cost [{}]ms, return null", t3 - t1);
 
         }
 
